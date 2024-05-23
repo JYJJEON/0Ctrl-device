@@ -196,6 +196,8 @@ yReturn = 0.0
 speedReturn = 0.0
 steeringReturn = 0.0
 
+runStatus = 0
+
 colors = [
         {'name': 'red', 'lower': np.array([0, 140, 170]), 'upper': np.array([11, 180, 255])},
         {'name': 'green', 'lower': np.array([64, 90, 160]), 'upper': np.array([71, 130, 180])},
@@ -262,7 +264,7 @@ class WorkingAreaFind(threading.Thread):
             time.sleep(0.1)
 
     def findCenter(self, name, Contours):
-        global findArea
+        global findArea, runStatus
         c = max(Contours, key=cv2.contourArea)
         ((box_x, box_y), radius) = cv2.minEnclosingCircle(c)
 
@@ -281,6 +283,8 @@ class WorkingAreaFind(threading.Thread):
 
                 roadFinding.stop()
                 roadFinding.join()
+
+                runStatus = 0
                 print("도로 추적 종료")
 
             elif name == areaB and WorkingAreaFind.flag == 2:
@@ -385,7 +389,7 @@ def autoStop():
         roadFinding.stop()
         roadFinding.join()
 
-runStatus = 0
+
 
 # left_cnt = 서버에서 받아오기
 # if left_cnt == 0:
