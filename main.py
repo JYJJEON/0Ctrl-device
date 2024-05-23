@@ -274,6 +274,7 @@ class WorkingAreaFind(threading.Thread):
             if name == areaA and self.flag == 1:
                 robot.stop()
                 WorkingAreaFind.flag = 2
+                print(WorkingAreaFind.flag)
                 findArea = areaB
 
                 roadFinding.stop()
@@ -393,12 +394,15 @@ while True:
     steeringKd = pre_document['auto_move']['steering_kd']
     steeringBias = pre_document['auto_move']['steering_bias']
 
+    flagArea = areaA
+
     if pre_document['toggle_move']['mode'] == 'auto' and runStatus == 0:
         autoStart()
         runStatus = 1
     elif pre_document['toggle_move']['mode'] == 'stop' and runStatus == 1:
         autoStop()
         runStatus = 0
+
 
     post_log = {
         "time": datetime.now(),
