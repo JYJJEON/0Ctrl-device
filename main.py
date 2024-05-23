@@ -209,6 +209,7 @@ colors = [
 areaA_color = next((color for color in colors if color['name'] == areaA), None)
 areaB_color = next((color for color in colors if color['name'] == areaB), None)
 
+# 전역 변수로 설정
 findArea = areaA
 
 frame_width = 300
@@ -224,7 +225,6 @@ goalFinding = None
 collisionAvoiding = None
 
 class WorkingAreaFind(threading.Thread):
-    global areaA,areaB,areaA_color,areaB_color
     flag = 1
 
     def __init__(self):
@@ -233,6 +233,7 @@ class WorkingAreaFind(threading.Thread):
         self.imageInput = 0
 
     def run(self):
+        global findArea
         while self.th_flag:
             self.imageInput = camera.value
             # BGR을 HSV로 변환
@@ -274,8 +275,8 @@ class WorkingAreaFind(threading.Thread):
             if name == areaA and self.flag == 1:
                 robot.stop()
                 WorkingAreaFind.flag = 2
-                print(WorkingAreaFind.flag)
                 findArea = areaB
+                print(f"Found area A, setting findArea to {findArea}")
 
                 roadFinding.stop()
                 roadFinding.join()
@@ -283,6 +284,8 @@ class WorkingAreaFind(threading.Thread):
 
             elif name == areaB and WorkingAreaFind.flag == 2:
                 WorkingAreaFind.flag = 1
+                findArea = areaA
+                print(f"Found area B, setting findArea to {findArea}")
 
                 roadFinding.stop()
                 roadFinding.join()
@@ -394,7 +397,8 @@ while True:
     steeringKd = pre_document['auto_move']['steering_kd']
     steeringBias = pre_document['auto_move']['steering_bias']
 
-    flagArea = areaA
+    # 전역 findArea 변수 업데이트
+    findArea = pre_document.get('find_area', areaA)
 
     if pre_document['toggle_move']['mode'] == 'auto' and runStatus == 0:
         autoStart()
@@ -402,7 +406,6 @@ while True:
     elif pre_document['toggle_move']['mode'] == 'stop' and runStatus == 1:
         autoStop()
         runStatus = 0
-
 
     post_log = {
         "time": datetime.now(),
