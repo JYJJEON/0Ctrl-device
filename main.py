@@ -139,7 +139,7 @@ def ptLeft():
     servoPos_1 = limitCtl(80, -80, servoPos_1 - 15)
     TTLServo.servoAngleCtrl(1, servoPos_1, 1, 150)
 
-def reset():
+def resetRobot():
     TTLServo.servoAngleCtrl(1, 0, -1, 100)
     TTLServo.servoAngleCtrl(5, 50, -1, 100)
     TTLServo.servoAngleCtrl(4, 0, -1, 100)
@@ -209,7 +209,7 @@ colors = [
 areaA_color = next((color for color in colors if color['name'] == areaA), None)
 areaB_color = next((color for color in colors if color['name'] == areaB), None)
 
-findArea = None
+findArea = areaA
 
 frame_width = 300
 frame_height = 300
@@ -380,10 +380,21 @@ runStatus = 0
 # if left_cnt == 0:
 #     데이터를 init값으로 변경
 
-reset()
+resetRobot()
 
 while True:
     pre_document = table_control.find_one(sort=[("time", -1)])
+    if pre_document is None:
+        # pre_document가 None이면 기본값 설정
+        pre_document = init_document
+
+    areaA = pre_document['start_area']['color']
+    areaB = pre_document['end_area']['color']
+    speedGain = pre_document['auto_move']['speed_gain']
+    steeringGain = pre_document['auto_move']['steering_gain']
+    steeringKd = pre_document['auto_move']['steering_kd']
+    steeringBias = pre_document['auto_move']['steering_bias']
+
     if pre_document['toggle_move']['mode'] == 'auto' and runStatus == 0:
         autoStart()
         runStatus = 1
@@ -395,14 +406,15 @@ while True:
         "time": datetime.now(),
         "run_status": {
             "run": runStatus,
-            "speed": speedReturn,
-            "x": xReturn,
-            "y": yReturn,
-            "steering": steeringReturn,
+            "speed": float(speedReturn),
+            "x": float(xReturn),
+            "y": float(yReturn),
+            "steering": float(steeringReturn),
             "find_area": findArea
         }
     }
 
     # 로그 컬렉션에 문서 삽입
     result = table_log.insert_one(post_log)
+
 
