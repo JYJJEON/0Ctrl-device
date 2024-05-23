@@ -223,6 +223,7 @@ max_len = 20
 roadFinding = None
 goalFinding = None
 collisionAvoiding = None
+humanDetect = 0
 
 class WorkingAreaFind(threading.Thread):
     flag = 1
@@ -303,7 +304,7 @@ class RobotMoving(threading.Thread):
         self.angle_last = 0.0
 
     def run(self):
-        global xReturn, yReturn, speedReturn, steeringReturn
+        global xReturn, yReturn, speedReturn, steeringReturn, humanDetect
         while self.th_flag:
             image = camera.value
             xy = model(self.preprocess(image)).detach().float().cpu().numpy().flatten()
@@ -341,10 +342,18 @@ class RobotMoving(threading.Thread):
 
                 robot.left_motor.value = max(min(speedReturn + steeringReturn, 1.0), 0.0)
                 robot.right_motor.value = max(min(speedReturn - steeringReturn, 1.0), 0.0)
+                humanDetect = 0
                 if not self.th_flag:
                     break
+            else:
+                print("Human Detected")
+                humanDetect = 1
 
             time.sleep(0.1)
+
+
+
+
 
         robot.stop()
         goalFinding.stop()
@@ -415,7 +424,8 @@ while True:
             "x": float(xReturn),
             "y": float(yReturn),
             "steering": float(steeringReturn),
-            "find_area": findArea
+            "find_area": findArea,
+            "human_detect": humanDetect
         }
     }
 
