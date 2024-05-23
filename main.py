@@ -224,6 +224,7 @@ goalFinding = None
 collisionAvoiding = None
 
 class WorkingAreaFind(threading.Thread):
+    global areaA,areaB,areaA_color,areaB_color
     flag = 1
 
     def __init__(self):
@@ -256,9 +257,6 @@ class WorkingAreaFind(threading.Thread):
             elif BContours and WorkingAreaFind.flag == 2:
                 self.findCenter(areaB, BContours)
 
-            else:
-                cv2.putText(self.imageInput, "Finding...", (0, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1,
-                            cv2.LINE_AA)
             time.sleep(0.1)
 
     def findCenter(self, name, Contours):
